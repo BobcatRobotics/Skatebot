@@ -12,13 +12,15 @@ import org.usfirst.frc.team177.lib.Commands;
 import org.usfirst.frc.team177.lib.RioLogger;
 import org.usfirst.frc.team177.lib.SmartDash;
 import org.usfirst.frc.team177.lib.SpeedFile;
-import org.usfirst.frc.team177.robot.commands.AutoCommand;
-import org.usfirst.frc.team177.robot.commands.DriveWithJoysticks;
-import org.usfirst.frc.team177.robot.commands.MoveClimberArm;
-import org.usfirst.frc.team177.robot.commands.MoveElevator;
-import org.usfirst.frc.team177.robot.commands.MoveElevatorWithJoystick;
-import org.usfirst.frc.team177.robot.commands.PlaybackCommands;
-import org.usfirst.frc.team177.robot.commands.RobotConstants;
+// import org.usfirst.frc.team177.robot.commands.AutoCommand;
+import org.usfirst.frc.team177.commands.DriveWithJoysticks;
+// import org.usfirst.frc.team177.robot.commands.MoveClimberArm;
+// import org.usfirst.frc.team177.robot.commands.MoveElevator;
+// import org.usfirst.frc.team177.robot.commands.MoveElevatorWithJoystick;
+// import org.usfirst.frc.team177.robot.commands.PlaybackCommands;
+import org.usfirst.frc.team177.commands.RobotConstants;
+// import org.usfirst.frc.team177.subsystems.DriveTrain;
+import org.usfirst.frc.team177.subsystems.ExampleSubsystem;
 
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -41,14 +43,18 @@ public class Robot extends TimedRobot {
 	/* Controls */
 	public static final OI Controls = new OI();
 	
+
+	/* Subsystems */
+	public static ExampleSubsystem m_subsystem = new ExampleSubsystem();
+ 
 	// First limit switch (bottom or top? TBD)
 	//DigitalInput limitswitch1 = new DigitalInput(9);
 	
 	/* Commands */
-	AutoCommand auto;
+	// AutoCommand auto;
 	DriveWithJoysticks driveJoy;
-	MoveElevator moveElevator;
-	MoveClimberArm moveClimberArm;
+	// MoveElevator moveElevator;
+	// MoveClimberArm moveClimberArm;
 	
 	/* SmartDashboard Information */
 	private String gameData = "";
@@ -163,7 +169,7 @@ public class Robot extends TimedRobot {
 		Scheduler.getInstance().removeAll();
 
 		// If I'm disabled clear any playback object I've defined in a prior trip through the code
-		OI.playCmd = null;
+		// OI.playCmd = null;
 
 		
 		// If recording in Competition, stop and write file
@@ -206,8 +212,8 @@ public class Robot extends TimedRobot {
 		OI.driveTrain.reset();
 		
 		// Initial Elevator
-		OI.elevator.reset();
-		OI.elevator.resetEncoder();
+		// OI.elevator.reset();
+		// OI.elevator.resetEncoder();
 		
 		// Reset the climber arm pullin disable flag since we're starting auto, and
 		// we want to be pulling the arm in again (until an arm command happens -- shouldn't in auto)
@@ -266,7 +272,7 @@ public class Robot extends TimedRobot {
         }
 
 		if (!isCmdFileEOF && (gameDataFromField || runSimpleAuto)) {
-			isCmdFileEOF = OI.playCmd.execute();
+			// isCmdFileEOF = OI.playCmd.execute();
 		}
 		SmartDash.displayControlValues();
 		displayAutoData();
@@ -286,21 +292,21 @@ public class Robot extends TimedRobot {
 		boolean isCrossOver = RobotConstants.AUTO_SCALE_CROSS.equals(crossOver.getSelected());
 		String autoFileName = determineAutoFile(startPosition,isCrossOver,gameData,gameDataFromField);
 		RioLogger.errorLog("Autonomous CMD File is  " + autoFileName);
-		if (OI.playCmd == null) {
-			OI.playCmd = new PlaybackCommands(autoFileName);
-			RioLogger.debugLog("created new PlaybackCommands");
-		}
-		OI.playCmd.initialize();
+		// if (OI.playCmd == null) {
+		// 	OI.playCmd = new PlaybackCommands(autoFileName);
+		// 	RioLogger.debugLog("created new PlaybackCommands");
+		// }
+		// OI.playCmd.initialize();
 	}
 
 	private void autonomousTestRecording() {
 		String autoRecorderName = fileRecorder.getSelected();
 		RioLogger.debugLog("autonomousTestRecording file is " + autoRecorderName);
-		if (OI.playCmd == null) {
-			OI.playCmd = new PlaybackCommands(autoRecorderName);
-			RioLogger.debugLog("created new PlaybackCommands");
-		}
-		OI.playCmd.initialize();
+		// if (OI.playCmd == null) {
+		// 	OI.playCmd = new PlaybackCommands(autoRecorderName);
+		// 	RioLogger.debugLog("created new PlaybackCommands");
+		// }
+		// OI.playCmd.initialize();
 	}
 	
 	private String determineAutoFile(String startPosition, boolean isCrossOver, String gameData, boolean gameDataFromField) {
@@ -401,7 +407,7 @@ public class Robot extends TimedRobot {
 		//Clear out the scheduler for testing, since we may have been in teleop before
 		//we came int autoInit() change for real use in competition
 		Scheduler.getInstance().removeAll();
-		OI.climber.reset();
+		// OI.climber.reset();
 		
 		// Reset the climber arm pullin disable flag since we're just staring teleop, and
 		//  we want to be pulling the arm in again (until an
@@ -410,10 +416,10 @@ public class Robot extends TimedRobot {
 
 		driveJoy = new DriveWithJoysticks();
 		driveJoy.start();
-		moveElevator = new MoveElevatorWithJoystick();
-		moveElevator.start();
-		moveClimberArm = new MoveClimberArm();
-		moveClimberArm.start();
+		// moveElevator = new MoveElevatorWithJoystick();
+		// moveElevator.start();
+		// moveClimberArm = new MoveClimberArm();
+		// moveClimberArm.start();
 		
 		// For Recording Files - In record mode record both CMD and SPEED files
 		//
@@ -466,16 +472,16 @@ public class Robot extends TimedRobot {
 				   OI.driveTrain.getLeftRate(), OI.driveTrain.getRightRate());
 				OI.cmdFile.addCommand(Commands.DRIVE_CHAIN, leftPwr, rightPwr, false);
 				
-				double elevatorPwr = OI.elevator.getCurrentSpeed();
-				if (Math.abs(elevatorPwr) > RobotConstants.ELEVATOR_POWER_TOL) {
-					OI.cmdFile.addCommand(Commands.ELEVATOR, elevatorPwr, 0.0, false);
-					isElevatorInTolerance = true;
-				} else {
-					if (isElevatorInTolerance) {
-						OI.cmdFile.addCommand(Commands.ELEVATOR, 0.0, 0.0, false);
-						isElevatorInTolerance = false;
-					}
-				}
+				// double elevatorPwr = OI.elevator.getCurrentSpeed();
+				// if (Math.abs(elevatorPwr) > RobotConstants.ELEVATOR_POWER_TOL) {
+				// 	OI.cmdFile.addCommand(Commands.ELEVATOR, elevatorPwr, 0.0, false);
+				// 	isElevatorInTolerance = true;
+				// } else {
+				// 	if (isElevatorInTolerance) {
+				// 		OI.cmdFile.addCommand(Commands.ELEVATOR, 0.0, 0.0, false);
+				// 		isElevatorInTolerance = false;
+				// 	}
+				// }
 				
 			}
 

@@ -12,25 +12,27 @@ import org.usfirst.frc.team177.lib.RioLogger;
 import org.usfirst.frc.team177.lib.RioLoggerThread;
 import org.usfirst.frc.team177.lib.SmartDashLog;
 import org.usfirst.frc.team177.lib.SpeedFile;
-import org.usfirst.frc.team177.robot.commands.CubeArms;
-import org.usfirst.frc.team177.robot.commands.CubeArmsClose;
-import org.usfirst.frc.team177.robot.commands.CubeArmsOpen;
-import org.usfirst.frc.team177.robot.commands.EjectCube;
-import org.usfirst.frc.team177.robot.commands.FourBarUpDown;
-import org.usfirst.frc.team177.robot.commands.PickupCube;
-import org.usfirst.frc.team177.robot.commands.PlaybackCommands;
-import org.usfirst.frc.team177.robot.commands.ShiftHigh;
-import org.usfirst.frc.team177.robot.commands.ShiftLow;
-import org.usfirst.frc.team177.robot.commands.WinchIn;
-import org.usfirst.frc.team177.robot.commands.WinchOut;
+import org.usfirst.frc.team177.subsystems.NavxGyro;
+import org.usfirst.frc.team177.subsystems.DriveTrain;
+// import org.usfirst.frc.team177.robot.commands.CubeArms;
+// import org.usfirst.frc.team177.robot.commands.CubeArmsClose;
+// import org.usfirst.frc.team177.robot.commands.CubeArmsOpen;
+// import org.usfirst.frc.team177.robot.commands.EjectCube;
+// import org.usfirst.frc.team177.robot.commands.FourBarUpDown;
+// import org.usfirst.frc.team177.robot.commands.PickupCube;
+// import org.usfirst.frc.team177.robot.commands.PlaybackCommands;
+// import org.usfirst.frc.team177.robot.commands.ShiftHigh;
+// import org.usfirst.frc.team177.robot.commands.ShiftLow;
+// import org.usfirst.frc.team177.robot.commands.WinchIn;
+// import org.usfirst.frc.team177.robot.commands.WinchOut;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+// import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+// import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
-import edu.wpi.first.wpilibj.DriverStation;
+// import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.Solenoid;
+// import edu.wpi.first.wpilibj.SPI;
+// import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import edu.wpi.first.wpilibj.buttons.Trigger;
@@ -48,11 +50,11 @@ public class OI {
 	public static DriveTrain driveTrain = new DriveTrain();
 
 	/* Elevator */
-	public static Elevator elevator = new Elevator();
+	// public static Elevator elevator = new Elevator();
 	public static boolean elevatorLimitIsEnabled = true;
 
 	// Instantiate Climber
-	public static Climber climber = new Climber();
+	// public static Climber climber = new Climber();
 	public static boolean climbPullinIsEnabled = true;
 	public static boolean disableClimberPullIn=false;
 
@@ -106,7 +108,7 @@ public class OI {
 	// These commands are in OI so that the teleop commands can access
 	public static SpeedFile sFile = null;
 	public static CommandFile cmdFile = null;
-	public static PlaybackCommands playCmd = null;
+	// public static PlaybackCommands playCmd = null;
 	public static boolean isRecording = false;
 	
 	static {
@@ -120,19 +122,19 @@ public class OI {
 		driveTrain.setLeftEncoder(RobotMap.leftEncoderChannel1, RobotMap.leftEncoderChannel2);
 		driveTrain.setRightEncoder(RobotMap.rightEncoderChannel1, RobotMap.rightEncoderChannel2);
 
-		btnCubePickup.whileHeld(new PickupCube());
-		btnCubePickupReverse.whileHeld(new EjectCube());
-		btnCubeArmsOpen.whenPressed(new CubeArmsOpen());
-		btnCubeArmsClose.whenPressed(new CubeArmsClose());
-		btnFourBarUpDown.toggleWhenPressed(new FourBarUpDown());
+		// btnCubePickup.whileHeld(new PickupCube());
+		// btnCubePickupReverse.whileHeld(new EjectCube());
+		// btnCubeArmsOpen.whenPressed(new CubeArmsOpen());
+		// btnCubeArmsClose.whenPressed(new CubeArmsClose());
+		// btnFourBarUpDown.toggleWhenPressed(new FourBarUpDown());
 
-		trigShifter.whenActive(new ShiftHigh());
-		trigShifter.whenInactive(new ShiftLow());
+		// trigShifter.whenActive(new ShiftHigh());
+		// trigShifter.whenInactive(new ShiftLow());
 
 		// btnClimberUp.whileHeld(new DeployClimber());
 		// btnClimberDown.whileHeld(new RetractClimber());
-		btnClimberWinchIn.whileHeld(new WinchIn());
-		btnClimberWinchOut.whileHeld(new WinchOut());
+		// btnClimberWinchIn.whileHeld(new WinchIn());
+		// btnClimberWinchOut.whileHeld(new WinchOut());
 
 		/* Navx mxp Gyro */
 		//gyro = new NavxGyro(SPI.Port.kMXP);

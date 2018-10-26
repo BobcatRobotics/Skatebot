@@ -1,7 +1,7 @@
 package org.usfirst.frc.team177.lib;
 
 import org.usfirst.frc.team177.robot.OI;
-import org.usfirst.frc.team177.robot.commands.FourBarUpDown;
+// import org.usfirst.frc.team177.robot.commands.FourBarUpDown;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -50,9 +50,9 @@ public class SmartDash {
        	boolean shifterSwitchState = OI.trigShifter.get();
        	SmartDashboard.putString("Shifter switch is: ",(shifterSwitchState ?  "ON" : "OFF"));
        	
-       	SmartDashboard.putBoolean("Current Four Bar up/down state:",  FourBarUpDown.state);
+       	// SmartDashboard.putBoolean("Current Four Bar up/down state:",  FourBarUpDown.state);
        	
-       	OI.elevator.displayDashboard();
+       	// OI.elevator.displayDashboard();
        	
        	// Real Time Logger
        	SmartDashboard.putData("RealTimeLog",OI.smartLog);

@@ -21,7 +21,7 @@ public class TestNoRobot {
 		log("TestNoRobot. speed filename is  - " + speedFileName);
 	
 		if (testCmd) {
-			//recordCommandFile(basefilename);
+			recordCommandFile(basefilename);
 			readCommandFile(basefilename);
 		}
 		if (testSpeed) {
