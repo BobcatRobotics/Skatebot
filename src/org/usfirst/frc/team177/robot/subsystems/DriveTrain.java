@@ -26,6 +26,8 @@ public class DriveTrain extends Subsystem {
 	private double modetime;
 	private double mode2dt=0.02;
 	private double mode3dist=8.0;
+	private double modeleftPower = 0.0;
+	private double moderightPower = 0.0;
 	private double runtime = 1.5;
 	private double ramptime = 0.5;
 	private double tgtpwr = 0.25;
@@ -40,13 +42,35 @@ public class DriveTrain extends Subsystem {
 	private double now = 0;    // time now in seconds
 	private double nowlpv = 0; // last pass value of now
 	private double dt = 20.0;  // delta time in seconds
-	private double theta = 0.0; // angle of bot in degrees from -180 to +180
+	private double theta = 0.0; // angle of bot in degrees from -180 to +180 (ccw rotation is positive)
+	private double thetalpv = 0.0; // angle of bot last time
+	private double thetaavg = 0.0; // average of current and lpv value of angle
 	private double dx = 0.0;   // change in x (delta x) between this pass and last pass
 	private double dy = 0.0;   // change in y (delta y) between this pass and last pass
 	private double y = 0.0;    // Y position of bot in inches
 	private double x = 0.0;    // X position of bot in inches
 	private double xlpv = 0.0; // last pass value of x
 	private double ylpv = 0.0; // last pass value of y
+	private double xt = 96.0;  // target x in inches
+	private double yt = 40.0;  // target y in inches
+	private double xtr = 0.0;  // xt - x
+	private double ytr = 0.0;  // yt - y
+	private double xu = 0.0;   // x component of the robot's direction facing Unit Vector
+	private double yu = 0.0;   // y component of the robot's direction facing unit vector
+	private double distproj = 0.0; // Projected distance to target
+	private double kdist = 1.0;    // distance to velocity request gain ips/inches
+	private double velreq = 0.0;   // Requested velocity in ips to drive toward target
+	private double velreqlpv = 0.0; // last pass value of requested velocity
+	private double velreqmax = 90.0; // Max allowable requested velocity
+	private double accreqmax = 70.0; // max allowable change in requested velocity (max acceleration req)
+	private double thetatarg = 0.0;  // angle of target from bots center (rather than field center)
+	private double thetaturn = 0.0;  // angle to turn to target from robots current theta.
+	private double disttol = 0.3;    // tolerance on meeting the projected distance.
+	private double turnreq = 0.0;    // modifier to velocity to request turning
+	                                 // positive turn req is turning ccw, so turnreq is added to right vel
+	                                 //                        and subtracted from left vel requests.
+	private double kturn = 0.2;     // propotionality constant to convert turnangle to velocity modifier
+	
 	
 	private AHRS ahrs;
 
@@ -115,12 +139,16 @@ public class DriveTrain extends Subsystem {
 		ddist = 0;
 		dist = 0;
 		theta = 0.0;
+		thetalpv = 0.0;
+		thetaavg = 0.0;
 		dx = 0.0;
 		dy = 0.0;
 		y = 0.0;
 		x = 0.0;
 		xlpv = 0.0;
 		ylpv = 0.0;
+		velreq=0.0;
+		velreqlpv = 0.0;
 	}
 	
 	public void setmode1() {
@@ -129,13 +157,13 @@ public class DriveTrain extends Subsystem {
 		leftFront.config_kI(0, 0.0006, 0);
 		leftFront.config_kD(0, 2.0, 0);
 		leftFront.config_IntegralZone(0, 2000, 0);
-		leftFront.configAllowableClosedloopError(0,40,0);
+		//leftFront.configAllowableClosedloopError(0,40,0);
 		skateBotEncoder.config_kF(0, 0.039, 0);
 		skateBotEncoder.config_kP(0, 0.02, 0);
 		skateBotEncoder.config_kI(0, 0.0003, 0);
 		skateBotEncoder.config_kD(0, 1.5, 0);
 		skateBotEncoder.config_IntegralZone(0, 4000, 0);
-		leftFront.configAllowableClosedloopError(0,40,0);
+		//leftFront.configAllowableClosedloopError(0,40,0);
 		// Clear any integral error from other modes
 		leftFront.setIntegralAccumulator(0, 0, 0);
 		skateBotEncoder.setIntegralAccumulator(0, 0, 0);
@@ -150,12 +178,16 @@ public class DriveTrain extends Subsystem {
 		ddist = 0;
 		dist = 0;
 		theta = 0.0;
+		thetalpv = 0.0;
+		thetaavg = 0.0;
 		dx = 0.0;
 		dy = 0.0;
 		y = 0.0;
 		x = 0.0;
 		xlpv = 0.0;
 		ylpv = 0.0;
+		velreq=0.0;
+		velreqlpv = 0.0;
 	}
 	
 	public void setmode2() {
@@ -187,12 +219,16 @@ public class DriveTrain extends Subsystem {
 		ddist = 0;
 		dist = 0;
 		theta = 0.0;
+		thetalpv = 0.0;
+		thetaavg = 0.0;
 		dx = 0.0;
 		dy = 0.0;
 		y = 0.0;
 		x = 0.0;
 		xlpv = 0.0;
 		ylpv = 0.0;
+		velreq=0.0;
+		velreqlpv = 0.0;
 	}
 
 	public void setmode3() {
@@ -230,12 +266,57 @@ public class DriveTrain extends Subsystem {
 		ddist = 0;
 		dist = 0;
 		theta = 0.0;
+		thetalpv = 0.0;
+		thetaavg = 0.0;
 		dx = 0.0;
 		dy = 0.0;
 		y = 0.0;
 		x = 0.0;
 		xlpv = 0.0;
 		ylpv = 0.0;
+		velreq=0.0;
+		velreqlpv = 0.0;
+	}
+
+	public void setmode4() {
+		leftFront.config_kF(0, 0.067, 0);
+		leftFront.config_kP(0, 0.02, 0);
+		leftFront.config_kI(0, 0.0002, 0);
+		leftFront.config_kD(0, 0.0, 0);
+		leftFront.config_IntegralZone(0, 1000, 0);
+		leftFront.configAllowableClosedloopError(0,0,0);
+
+		skateBotEncoder.config_kF(0, 0.040, 0);
+		skateBotEncoder.config_kP(0, 0.01, 0);
+		skateBotEncoder.config_kI(0, 0.0001, 0);
+		skateBotEncoder.config_kD(0, 0.0, 0);
+		skateBotEncoder.config_IntegralZone(0, 2000, 0);
+		skateBotEncoder.configAllowableClosedloopError(0,0,0);
+		
+		// Clear any integral error from other modes
+		leftFront.setIntegralAccumulator(0, 0, 0);
+		skateBotEncoder.setIntegralAccumulator(0, 0, 0);
+		mode=4;
+		ahrs.zeroYaw();
+		ld = 0;
+		rd = 0;
+		ldlpv = 0;
+		rdlpv = 0;
+		dld = 0;
+		drd = 0;
+		ddist = 0;
+		dist = 0;
+		theta = 0.0;
+		thetalpv = 0.0;
+		thetaavg = 0.0;
+		dx = 0.0;
+		dy = 0.0;
+		y = 0.0;
+		x = 0.0;
+		xlpv = 0.0;
+		ylpv = 0.0;
+		velreq=0.0;
+		velreqlpv = 0.0;
 	}
 
 	public void setupGyro() {
@@ -361,19 +442,52 @@ public class DriveTrain extends Subsystem {
 		ddist=(dld+drd)/2.0;
 		dist = dist + ddist;
 
-		// What direction are we facing:
-		theta = ahrs.getYaw();
+		// What is the angle we make to the X axis (make counter-clockwise rotation positive)
+		thetalpv = theta;
+		theta = -1.0*ahrs.getYaw();
+		thetaavg = (theta+thetalpv)/2.0;
 		
 		// Now calculate the x and y of the drivetrain.
 		//  first the incremental change in x and y:
-		dx = ddist*Math.cos(Math.toRadians(theta));
-		dy = ddist*Math.sin(Math.toRadians(theta));		
+		dx = ddist*Math.cos(Math.toRadians(thetaavg));
+		dy = ddist*Math.sin(Math.toRadians(thetaavg));		
 		//  then add change in x and y to last pass value of total x and y: 
 		xlpv = x;
 		ylpv = y;
 		x=xlpv+dx;
 		y=ylpv+dy;
-				
+
+		// Calculate X & Y  between target and bot:
+		xtr = xt - x;
+		ytr = yt - y;
+		
+		// Calculate X and Y of a unit vector facing forward out of the center of the bot:
+		xu = Math.cos(Math.toRadians(theta));
+		yu = Math.sin(Math.toRadians(theta));
+
+		// Calculate distance from robot to target that projected in the robots current direction
+		distproj = xtr * xu + ytr * yu;
+		
+		if (distproj < disttol) distproj = 0.0;
+		
+		// Set a velocity request proportional to the projected distance
+		velreqlpv = velreq;
+		velreq = kdist * distproj;
+		// Limit the velocity request to a max value and rate limit the change
+		if (velreq > velreqmax) velreq = velreqmax;
+		if (velreq < -1.0*velreqmax) velreq = -1.0*velreqmax;
+		if (velreq > (velreqlpv + accreqmax * dt) ) velreq = velreqlpv + accreqmax *dt;
+		if (velreq < (velreqlpv - accreqmax * dt) ) velreq = velreqlpv - accreqmax *dt;
+ 		
+		// Calc theta of target from bot center  TODO: maybe move above velreq, and calc velreq left/right here? maybe increase izone? look at how it works for velocity mode talon PID
+		thetatarg = Math.toDegrees(Math.atan2(ytr, xtr));
+		thetaturn = thetatarg - theta;
+		if (thetaturn > 180.0) thetaturn = thetaturn - 360.0;
+		if (thetaturn < -180.0) thetaturn = thetaturn + 360.0;
+		turnreq = kturn * thetaturn;
+		if (thetaturn < 1.0) turnreq = 0.0;
+		
+		
 		if (mode == 0) {
 			runtime = 3.0;
 			ramptime = 0.2;
@@ -460,6 +574,41 @@ public class DriveTrain extends Subsystem {
 			//                       gearing is such that 5 sensor rotations=1wheel rotation)
 	        skateBotEncoder.set(ControlMode.MotionMagic, mode3dist*4096.0*5.0);		
 		}
+		if (mode == 4) {
+//			modetime = modetime + mode2dt; // assume 20 msec per pass for now.
+//			// Make time count up & down from 0.0 to 2.0
+//			if (modetime > 2.0) {
+//				modetime = 2.0;
+//				mode2dt = -1.0*mode2dt;
+//				moderightPower=0.5;
+//			}
+//			if (modetime < 0.0) {
+//				modetime = 0.0;
+//				mode2dt = -1.0*mode2dt;
+//				moderightPower=0.25;
+//			}
+//			leftPwr=modeleftPower;
+//			rightPwr=moderightPower;
+//			// Use request from sticks to set a velocity target
+//			// 8000 and 13329 are arbitrary limits on +/- velocity in native units/100msec
+//			// they are different because left side has 3 sensor rotation per 1 wheel rotation
+//			// and right side has 5 sensor rotations per 1 wheel rotation
+//			leftFront.set(ControlMode.Velocity, leftPwr*8000.0);
+//	        //use skateBotEncoder.set(...)  -- note, that this works because rightfront
+//	        //                                 has been set to follow skateBotEncoder.
+//			skateBotEncoder.set(ControlMode.Velocity, rightPwr*13329.0);
+			
+			// Use the velocity request to set a velocity target for the left and right sides:
+
+			// There are 4096 tics per sensor rotation and 3 or 5 sensor rotation per wheel rotation
+			// and the wheels are 3 13/16 inches in diameter (they were 3 7/8 new),
+			// and the velocity request should be in native units per 100 msec:
+            // 3.0*4096.0*0.1/(3.141592*3.8125) = 102.594 (negative as left side spins backward)
+			// 5.0*4096.0*0.1/(3.141592*3.8125) = 170.9898
+			leftFront.set(ControlMode.Velocity, -102.594*(velreq-turnreq));
+			skateBotEncoder.set(ControlMode.Velocity, 170.9898*(velreq+turnreq));
+		}
+
 	}
 
 	public void stop() {
@@ -505,6 +654,16 @@ public class DriveTrain extends Subsystem {
 		SmartDashboard.putNumber("dy", dy);
 		SmartDashboard.putNumber("x", x);
 		SmartDashboard.putNumber("y", y);
+		SmartDashboard.putNumber("velreq", velreq);
+		SmartDashboard.putNumber("distproj", distproj);
+		SmartDashboard.putNumber("xt", xt);
+		SmartDashboard.putNumber("yt", yt);
+		SmartDashboard.putNumber("xtr", xtr);
+		SmartDashboard.putNumber("ytr", ytr);
+		SmartDashboard.putNumber("thetatarg", thetatarg);
+		SmartDashboard.putNumber("thetaturn", thetaturn);
+		SmartDashboard.putNumber("turnreq", turnreq);
+		
 	}
 	
 	public void displayGyroData () {

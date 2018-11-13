@@ -29,11 +29,13 @@ public class OI {
 	public static Button btnSetMode1 = new JoystickButton(gamePad, RobotMap.gamePadMode1);
 	public static Button btnSetMode2 = new JoystickButton(gamePad, RobotMap.gamePadMode2);
 	public static Button btnSetMode3 = new JoystickButton(gamePad, RobotMap.gamePadMode3);
+	public static Button btnSetMode4 = new JoystickButton(gamePad, RobotMap.gamePadMode4);
 
 	static {
 		btnSetMode0.whenPressed(new SetMode0());
 		btnSetMode1.whenPressed(new SetMode1());
 		btnSetMode2.whenPressed(new SetMode2());
 		btnSetMode3.whenPressed(new SetMode3());
+		btnSetMode4.whenPressed(new SetMode4());
 	}
 }

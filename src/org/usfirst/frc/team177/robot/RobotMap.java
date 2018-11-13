@@ -25,5 +25,6 @@ public class RobotMap {
 	public static int gamePadMode1 = 2;
 	public static int gamePadMode2 = 3;
 	public static int gamePadMode3 = 4;
+	public static int gamePadMode4 = 5;
 
 }
