@@ -52,7 +52,7 @@ public class DriveTrain extends Subsystem {
 	private double xlpv = 0.0; // last pass value of x
 	private double ylpv = 0.0; // last pass value of y
 	private double xt = 96.0;  // target x in inches
-	private double yt = 40.0;  // target y in inches
+	private double yt = 0.0;  // target y in inches
 	private double xtr = 0.0;  // xt - x
 	private double ytr = 0.0;  // yt - y
 	private double xu = 0.0;   // x component of the robot's direction facing Unit Vector
@@ -69,7 +69,11 @@ public class DriveTrain extends Subsystem {
 	private double turnreq = 0.0;    // modifier to velocity to request turning
 	                                 // positive turn req is turning ccw, so turnreq is added to right vel
 	                                 //                        and subtracted from left vel requests.
-	private double kturn = 0.2;     // propotionality constant to convert turnangle to velocity modifier
+	private double kturn = 0.5;     // proportionality constant to convert turnangle to velocity modifier
+	private double turndistlim = 1.0; // limit inside which we don't try and turn toward target (we're there)
+	private double turnreqmax = 70.0; // Max allowable +/- turn requested velocity
+	private double turnaccmax = 70.0; // max allowable change in turn velocity (max turn acceleration req)
+	private double turnreqlpv = 0.0;  // last pass value of turn.
 	
 	
 	private AHRS ahrs;
@@ -149,6 +153,7 @@ public class DriveTrain extends Subsystem {
 		ylpv = 0.0;
 		velreq=0.0;
 		velreqlpv = 0.0;
+		turnreqlpv = 0.0;
 	}
 	
 	public void setmode1() {
@@ -188,6 +193,7 @@ public class DriveTrain extends Subsystem {
 		ylpv = 0.0;
 		velreq=0.0;
 		velreqlpv = 0.0;
+		turnreqlpv = 0.0;
 	}
 	
 	public void setmode2() {
@@ -229,6 +235,7 @@ public class DriveTrain extends Subsystem {
 		ylpv = 0.0;
 		velreq=0.0;
 		velreqlpv = 0.0;
+		turnreqlpv = 0.0;
 	}
 
 	public void setmode3() {
@@ -276,6 +283,7 @@ public class DriveTrain extends Subsystem {
 		ylpv = 0.0;
 		velreq=0.0;
 		velreqlpv = 0.0;
+		turnreqlpv = 0.0;
 	}
 
 	public void setmode4() {
@@ -317,6 +325,8 @@ public class DriveTrain extends Subsystem {
 		ylpv = 0.0;
 		velreq=0.0;
 		velreqlpv = 0.0;
+		turnreqlpv = 0.0;
+		turnreq = 0.0;
 	}
 
 	public void setupGyro() {
@@ -478,14 +488,23 @@ public class DriveTrain extends Subsystem {
 		if (velreq < -1.0*velreqmax) velreq = -1.0*velreqmax;
 		if (velreq > (velreqlpv + accreqmax * dt) ) velreq = velreqlpv + accreqmax *dt;
 		if (velreq < (velreqlpv - accreqmax * dt) ) velreq = velreqlpv - accreqmax *dt;
+		if (distproj < disttol) velreq = 0.0;
  		
 		// Calc theta of target from bot center  TODO: maybe move above velreq, and calc velreq left/right here? maybe increase izone? look at how it works for velocity mode talon PID
+		// If the robot is right at the target, don't spin randomly
 		thetatarg = Math.toDegrees(Math.atan2(ytr, xtr));
 		thetaturn = thetatarg - theta;
+		if ((xtr*xtr+ytr*ytr) < turndistlim) thetaturn=0;
 		if (thetaturn > 180.0) thetaturn = thetaturn - 360.0;
 		if (thetaturn < -180.0) thetaturn = thetaturn + 360.0;
-		turnreq = kturn * thetaturn;
-		if (thetaturn < 1.0) turnreq = 0.0;
+		turnreqlpv = turnreq;         // save last pass value of turn req.
+		turnreq = kturn * thetaturn; // turn angle to target into turn command in ips.
+		if (thetaturn*thetaturn < 1.0) turnreq = 0.0;  // 1 degree is close enough to correct direction
+		if (turnreq > turnreqmax) turnreq = turnreqmax; // limit turnreq to +/- max allowable
+		if (turnreq < (-1.0*turnreqmax)) turnreq = -1.0*turnreqmax;
+		if (turnreq > (turnreqlpv + turnaccmax*dt) ) turnreq = turnreqlpv + turnaccmax*dt;
+		if (turnreq < (turnreqlpv - turnaccmax*dt) ) turnreq = turnreqlpv - turnaccmax*dt;
+		if ((xtr*xtr+ytr*ytr) < turndistlim) turnreq=0;
 		
 		
 		if (mode == 0) {
@@ -663,7 +682,7 @@ public class DriveTrain extends Subsystem {
 		SmartDashboard.putNumber("thetatarg", thetatarg);
 		SmartDashboard.putNumber("thetaturn", thetaturn);
 		SmartDashboard.putNumber("turnreq", turnreq);
-		
+		SmartDashboard.putNumber("theta", theta);
 	}
 	
 	public void displayGyroData () {
