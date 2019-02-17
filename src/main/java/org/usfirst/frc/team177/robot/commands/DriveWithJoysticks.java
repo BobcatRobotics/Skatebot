@@ -39,6 +39,17 @@ public class DriveWithJoysticks extends Command {
 		//double right = OI.rightStick.getRawAxis(Joystick.AxisType.kY.value);
 		double left = OI.gamePad.getRawAxis(RobotMap.gamePadLeftPwrStick);
 		double right = OI.gamePad.getRawAxis(RobotMap.gamePadRightPwrStick);
+		if (Math.abs(left) < .02) {
+
+			left = 0.0;
+
+		}
+
+		if (Math.abs(right) < .02) {
+
+			right = 0.0;
+
+		}
 		Robot.driveTrain.setLeftPower(left);
 		Robot.driveTrain.setRightPower(right);
 		Robot.driveTrain.drive();

@@ -10,9 +10,12 @@ package org.usfirst.frc.team177.robot;
 import org.usfirst.frc.team177.robot.commands.*;
 import org.usfirst.frc.team177.robot.subsystems.*;
 
-import edu.wpi.first.wpilibj.CameraServer;
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.cscore.VideoMode.PixelFormat;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
+//import sun.java2d.pipe.PixelFillPipe;
 
 /**
  * 2018 Skatebot Code - Main Class
@@ -42,7 +45,15 @@ public class Robot extends TimedRobot {
 		driveTrain.setupLeftMotor(RobotMap.driveLeftMotorFront, false);
 		driveTrain.setupRightMotor(RobotMap.driveRightMotorFront, true);
 		driveTrain.setupGyro();
-		CameraServer.getInstance().startAutomaticCapture();
+		/* UsbCamera mainCamera = CameraServer.getInstance().startAutomaticCapture();
+		mainCamera.setVideoMode(PixelFormat.kMJPEG, 320, 240, 30);
+		mainCamera.setWhiteBalanceHoldCurrent();
+		mainCamera.setExposureAuto(); */
+
+		UsbCamera wideCamera = CameraServer.getInstance().startAutomaticCapture();
+		//wideCamera.setVideoMode(PixelFormat.kGray, 320, 240, 30);
+		// wideCamera.setWhiteBalanceHoldCurrent();
+		// wideCamera.setExposureManual(4);
   	}
 
 	/**
