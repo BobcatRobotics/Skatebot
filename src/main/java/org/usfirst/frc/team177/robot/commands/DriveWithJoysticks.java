@@ -54,9 +54,17 @@ public class DriveWithJoysticks extends Command {
 			right = 0.0;
 		}
 
-		if (Math.abs((right - previousPos) / (Math.pow(Timer.getFPGATimestamp(), 2))) > /*To be replaced*/.5
-		|| Math.abs((left - previousPos) / (Math.pow(Timer.getFPGATimestamp(), 2))) > /*To be replaced*/.5 ) {
+		// if (Math.abs((right - previousPos) / (Math.pow(Timer.getFPGATimestamp(), 2))) > /*To be replaced*/.5
+		// || Math.abs((left - previousPos) / (Math.pow(Timer.getFPGATimestamp(), 2))) > /*To be replaced*/.5 ) {
 			
+		// 	new VTEC_ON();
+		// } else {
+
+		// 	new VTEC_OFF();
+		// }
+
+		if (Math.abs(right) > .85 || Math.abs(left) > .85) {
+
 			new VTEC_ON();
 		} else {
 
@@ -65,11 +73,11 @@ public class DriveWithJoysticks extends Command {
 		Robot.driveTrain.setLeftPower(left);
 		Robot.driveTrain.setRightPower(right);
 		Robot.driveTrain.drive();
-		if (right >= left) {
-			previousPos = right;
-		} else {
-			previousPos = left;
-		}
+		// if (right >= left) {
+		// 	previousPos = right;
+		// } else {
+		// 	previousPos = left;
+		// }
 	}
 
 	// Make this return true when this Command no longer needs to run execute()
