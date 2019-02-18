@@ -75,7 +75,6 @@ public class DriveTrain extends Subsystem {
 	private double turnreqmax = 70.0; // Max allowable +/- turn requested velocity
 	private double turnaccmax = 70.0; // max allowable change in turn velocity (max turn acceleration req)
 	private double turnreqlpv = 0.0;  // last pass value of turn.
-	private double previousPosition = 0.0;
 	
 	private AHRS ahrs;
 

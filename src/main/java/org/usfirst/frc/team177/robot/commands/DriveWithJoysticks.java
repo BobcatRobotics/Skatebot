@@ -65,6 +65,11 @@ public class DriveWithJoysticks extends Command {
 		Robot.driveTrain.setLeftPower(left);
 		Robot.driveTrain.setRightPower(right);
 		Robot.driveTrain.drive();
+		if (right >= left) {
+			previousPos = right;
+		} else {
+			previousPos = left;
+		}
 	}
 
 	// Make this return true when this Command no longer needs to run execute()
