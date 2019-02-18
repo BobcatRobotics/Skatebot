@@ -27,4 +27,7 @@ public class RobotMap {
 	public static int gamePadMode3 = 4;
 	public static int gamePadMode4 = 5;
 
+	//Solenoid
+	public static int shiftSolenoid = 0;
+
 }

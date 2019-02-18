@@ -8,6 +8,7 @@
 package org.usfirst.frc.team177.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import org.usfirst.frc.team177.robot.commands.*;
@@ -38,4 +39,7 @@ public class OI {
 		btnSetMode3.whenPressed(new SetMode3());
 		btnSetMode4.whenPressed(new SetMode4());
 	}
+
+	//Solenoid
+	public static Solenoid shifter = new Solenoid(RobotMap.shiftSolenoid);
 }

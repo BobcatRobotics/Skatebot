@@ -7,6 +7,7 @@
 
 package org.usfirst.frc.team177.robot.commands;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import org.usfirst.frc.team177.robot.OI;
 import org.usfirst.frc.team177.robot.Robot;
@@ -14,6 +15,8 @@ import org.usfirst.frc.team177.robot.RobotMap;
 
 public class DriveWithJoysticks extends Command {
 	
+	private double previousPos = 0.0;
+
 	public DriveWithJoysticks() {
 		// Use requires() here to declare subsystem dependencies
 		requires(Robot.driveTrain);
@@ -39,16 +42,25 @@ public class DriveWithJoysticks extends Command {
 		//double right = OI.rightStick.getRawAxis(Joystick.AxisType.kY.value);
 		double left = OI.gamePad.getRawAxis(RobotMap.gamePadLeftPwrStick);
 		double right = OI.gamePad.getRawAxis(RobotMap.gamePadRightPwrStick);
+		System.out.println(left);
+		
 		if (Math.abs(left) < .02) {
 
 			left = 0.0;
-
 		}
 
 		if (Math.abs(right) < .02) {
 
 			right = 0.0;
+		}
 
+		if (Math.abs((right - previousPos) / (Math.pow(Timer.getFPGATimestamp(), 2))) > /*To be replaced*/.5
+		|| Math.abs((left - previousPos) / (Math.pow(Timer.getFPGATimestamp(), 2))) > /*To be replaced*/.5 ) {
+			
+			new VTEC_ON();
+		} else {
+
+			new VTEC_OFF();
 		}
 		Robot.driveTrain.setLeftPower(left);
 		Robot.driveTrain.setRightPower(right);

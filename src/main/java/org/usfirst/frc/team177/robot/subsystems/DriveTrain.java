@@ -1,5 +1,6 @@
 package org.usfirst.frc.team177.robot.subsystems;
 
+import org.usfirst.frc.team177.robot.OI;
 import org.usfirst.frc.team177.robot.commands.*;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -74,7 +75,7 @@ public class DriveTrain extends Subsystem {
 	private double turnreqmax = 70.0; // Max allowable +/- turn requested velocity
 	private double turnaccmax = 70.0; // max allowable change in turn velocity (max turn acceleration req)
 	private double turnreqlpv = 0.0;  // last pass value of turn.
-	
+	private double previousPosition = 0.0;
 	
 	private AHRS ahrs;
 
@@ -414,6 +415,7 @@ public class DriveTrain extends Subsystem {
 	}
 
 	public void drive() {
+		
 		drive(leftPower,rightPower);
 	}
 	
